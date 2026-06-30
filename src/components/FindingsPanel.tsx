@@ -119,19 +119,21 @@ export function FindingsPanel({
           {appliedCount > 0 && !allApplied ? (
             <p className="restale">Fixes applied — re-run the check to refresh the score.</p>
           ) : null}
+          <ul className="findings-list">
+            {result?.findings.map((f, idx) => (
+                <FindingCard
+                    key={`${idx}-${f.quote}`}
+                    finding={f}
+                    marker={markerByFinding.get(idx)}
+                    isApplied={applied.has(idx)}
+                    isActive={active === idx}
+                    onHover={(on) => onActive(on ? idx : null)}
+                    onApply={() => onApply(idx)}
+                    delay={0.05 * idx}
+                />
+            ))}
+          </ul>
 
-          {result?.findings.map((f, idx) => (
-            <FindingCard
-              key={`${idx}-${f.quote}`}
-              finding={f}
-              marker={markerByFinding.get(idx)}
-              isApplied={applied.has(idx)}
-              isActive={active === idx}
-              onHover={(on) => onActive(on ? idx : null)}
-              onApply={() => onApply(idx)}
-              delay={0.05 * idx}
-            />
-          ))}
         </>
       )}
     </aside>

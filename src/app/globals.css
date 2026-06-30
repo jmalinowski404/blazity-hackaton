@@ -966,6 +966,12 @@ body {
 }
 .repost-note a { color: var(--signal); }
 
+.findings-list {
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.8em;
+}
+
 /* ============================================================
    Animations
    ============================================================ */

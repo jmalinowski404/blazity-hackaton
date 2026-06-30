@@ -18,7 +18,7 @@ type Props = {
 
 export function FindingCard({ finding, marker, isApplied, isActive, onHover, onApply, delay }: Props) {
   return (
-    <div
+    <li
       className={`note${isActive ? " is-active" : ""}${isApplied ? " is-applied" : ""}`}
       style={{ animationDelay: `${delay}s` }}
       onMouseEnter={() => onHover(true)}
@@ -56,6 +56,6 @@ export function FindingCard({ finding, marker, isApplied, isActive, onHover, onA
           </button>
         )}
       </div>
-    </div>
+    </li>
   );
 }
