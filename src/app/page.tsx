@@ -221,7 +221,7 @@ export default function Home() {
                   <span
                     key={runId}
                     className="meter-fill"
-                    style={{ ["--score" as string]: `${score ?? 0}%` }}
+                    style={{ "--score": `${score ?? 0}%` } as React.CSSProperties}
                   />
                 </span>
                 <span className="meter-score">
