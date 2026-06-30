@@ -2,10 +2,13 @@
 
 ## What this repo is
 
-`blazity-hackaton` — an early-stage hackathon project. Today it is a scaffold:
-only README, LICENSE, and the Atlas AI workspace under `.ai/` exist; there is no
-application code yet. The intended product is an AI / agent application; concrete
-scope and tech stack are not yet decided. See `.ai/memory/` for stable context.
+`blazity-hackaton` — a hackathon project for the Blazity "AI for Content"
+challenge. The product is a **brand/tone consistency** web app: it checks copy
+against a brand voice / style guide and flags or rewrites off-brand text. The
+stack is a Next.js 16 (App Router) + TypeScript web app using the Claude
+(Anthropic) API and Tailwind CSS v4. The app is scaffolded
+(`create-next-app`); product feature code is not built yet. See `.ai/memory/`
+for stable context.
 
 ## Structure
 
@@ -16,10 +19,14 @@ scope and tech stack are not yet decided. See `.ai/memory/` for stable context.
 
 ## Working rules
 
-- No stack is chosen yet — confirm language, framework, and run/test/build
-  commands before assuming them. Update `.ai/memory/stack.md` once decided.
-- There are no project-specific safe commands yet beyond Atlas tooling:
-  `npx --yes @blazity-atlas/core@latest doctor` checks workspace health.
+- Stack is Next.js 16 (App Router, `src/`) + TypeScript + Tailwind v4, npm.
+  Safe commands: `npm run dev`, `npm run build`, `npm start`, `npm run lint`.
+- When working with the Claude API, use the latest Claude models and the
+  Anthropic SDK (`@anthropic-ai/sdk`); do not answer model/pricing questions
+  from memory.
+- Keep the Anthropic API key server-side only (route handlers / server
+  actions) — it must never reach the client bundle.
+- Atlas workspace health: `npx --yes @blazity-atlas/core@latest doctor`.
 - Do not edit the `<!-- BEGIN/END ATLAS -->` managed block below by hand.
 - Keep durable docs depersonalized (see Atlas Documentation Rules below).
 
