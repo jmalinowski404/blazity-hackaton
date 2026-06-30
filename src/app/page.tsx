@@ -1,240 +1,16 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { BRAND_PROFILE } from "@/app/brand";
-
-/* ---- types (mirror the /api/check response) ---------------------------- */
-type Severity = "low" | "medium" | "high";
-type Finding = {
-  quote: string;
-  rule: string;
-  title: string;
-  severity: Severity;
-  explanation: string;
-  rewrite: string;
-};
-type CheckResult = { score: number; summary: string; findings: Finding[] };
-
-const SAMPLE = `We're thrilled to announce a revolutionary new platform that will utilize cutting-edge AI to leverage synergies across your entire content stack. Our best-in-class solution empowers stakeholders to ideate at scale. Click Here To Learn More!!!`;
-
-const SEVERITY_HELP: Record<Severity, string> = {
-  low: "Minor — a small polish to sound more on-brand.",
-  medium: "Worth fixing — noticeably off the brand voice.",
-  high: "Fix this — clearly breaks the brand voice.",
-};
-
-/* Locate each finding's verbatim quote in the working text and split the
-   document into plain + flagged segments. Applied findings are skipped. */
-type Match = { start: number; end: number; idx: number; n: number };
-function annotate(text: string, findings: Finding[], skip: Set<number>) {
-  const matches: Match[] = [];
-  findings.forEach((f, idx) => {
-    if (skip.has(idx) || !f.quote) return;
-    let from = 0;
-    while (from <= text.length) {
-      const at = text.indexOf(f.quote, from);
-      if (at === -1) break;
-      const end = at + f.quote.length;
-      const overlaps = matches.some((m) => at < m.end && end > m.start);
-      if (!overlaps) {
-        matches.push({ start: at, end, idx, n: 0 });
-        break;
-      }
-      from = at + 1;
-    }
-  });
-  matches.sort((a, b) => a.start - b.start);
-  matches.forEach((m, i) => (m.n = i + 1));
-
-  const segs: { text: string; match?: Match }[] = [];
-  let cur = 0;
-  for (const m of matches) {
-    if (m.start > cur) segs.push({ text: text.slice(cur, m.start) });
-    segs.push({ text: text.slice(m.start, m.end), match: m });
-    cur = m.end;
-  }
-  if (cur < text.length) segs.push({ text: text.slice(cur) });
-
-  const markerByFinding = new Map<number, number>();
-  matches.forEach((m) => markerByFinding.set(m.idx, m.n));
-  return { segs, markerByFinding };
-}
-
-function correctedName(name: string) {
-  const dot = name.lastIndexOf(".");
-  if (dot <= 0) return `${name}-corrected.txt`;
-  return `${name.slice(0, dot)}-corrected${name.slice(dot)}`;
-}
+import { Topbar } from "@/components/Topbar";
+import { Hero } from "@/components/Hero";
+import { BrandCheckApp } from "@/components/BrandCheckApp";
+import { HowItWorks } from "@/components/HowItWorks";
+import { VoiceProfile } from "@/components/VoiceProfile";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function Home() {
-  const [text, setText] = useState(SAMPLE);
-  const [fileName, setFileName] = useState("untitled.txt");
-  const [mode, setMode] = useState<"edit" | "result">("edit");
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<CheckResult | null>(null);
-  const [applied, setApplied] = useState<Set<number>>(new Set());
-  const [active, setActive] = useState<number | null>(null);
-  const [runId, setRunId] = useState(0);
-
-  const [url, setUrl] = useState("");
-  const [fetchStatus, setFetchStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-
-  const { segs, markerByFinding } = useMemo(
-    () => annotate(text, result?.findings ?? [], applied),
-    [text, result, applied],
-  );
-
-  function loadText(next: string, name: string) {
-    setText(next);
-    setFileName(name);
-    setMode("edit");
-    setResult(null);
-    setApplied(new Set());
-    setStatus("idle");
-    setError(null);
-  }
-
-  async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    loadText(await file.text(), file.name);
-    e.target.value = "";
-  }
-
-  async function fetchUrl() {
-    if (!url.trim() || fetchStatus === "loading") return;
-    setFetchStatus("loading");
-    setFetchError(null);
-    try {
-      const res = await fetch("/api/fetch", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Couldn't fetch that URL.");
-      loadText(data.text as string, (data.source as string) || "fetched.txt");
-      setFetchStatus("idle");
-    } catch (err) {
-      setFetchStatus("error");
-      setFetchError(err instanceof Error ? err.message : "Couldn't fetch that URL.");
-    }
-  }
-
-  async function runCheck() {
-    if (!text.trim() || status === "loading") return;
-    setStatus("loading");
-    setError(null);
-    try {
-      const res = await fetch("/api/check", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Check failed.");
-      setResult(data as CheckResult);
-      setApplied(new Set());
-      setMode("result");
-      setStatus("idle");
-      setActive(null);
-      setRunId((n) => n + 1);
-    } catch (err) {
-      setStatus("error");
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    }
-  }
-
-  function applyFinding(idx: number) {
-    if (!result || applied.has(idx)) return;
-    const f = result.findings[idx];
-    const at = text.indexOf(f.quote);
-    if (at !== -1) {
-      setText(text.slice(0, at) + f.rewrite + text.slice(at + f.quote.length));
-    }
-    setApplied((prev) => new Set(prev).add(idx));
-  }
-
-  function applyAll() {
-    if (!result) return;
-    let next = text;
-    const all = new Set(applied);
-    result.findings.forEach((f, i) => {
-      if (all.has(i)) return;
-      const at = next.indexOf(f.quote);
-      if (at !== -1) next = next.slice(0, at) + f.rewrite + next.slice(at + f.quote.length);
-      all.add(i);
-    });
-    setText(next);
-    setApplied(all);
-  }
-
-  function download() {
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const href = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = correctedName(fileName);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(href);
-    flash("Downloaded corrected file");
-  }
-
-  async function copyText() {
-    try {
-      await navigator.clipboard.writeText(text);
-      flash("Copied corrected text");
-    } catch {
-      flash("Couldn't copy — select and copy manually");
-    }
-  }
-
-  function flash(msg: string) {
-    setToast(msg);
-    window.setTimeout(() => setToast((t) => (t === msg ? null : t)), 2200);
-  }
-
-  const score = result?.score ?? null;
-  const total = result?.findings.length ?? 0;
-  const appliedCount = applied.size;
-  const allApplied = total > 0 && appliedCount === total;
-
   return (
     <>
-      {/* ---------------- top bar ---------------- */}
-      <header className="topbar">
-        <div className="shell topbar-in">
-          <div className="brand">
-            <span className="brand-mark" aria-hidden>
-              <span />
-              <span />
-              <span />
-            </span>
-            Tono
-          </div>
-          <nav className="topnav" aria-label="Primary">
-            <a href="#proof">The proof</a>
-            <a href="#voice">Your voice</a>
-            <a href="#how">How it works</a>
-          </nav>
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <span className="status">
-              <span className="dot" aria-hidden />
-              <span className="mono">voice synced</span>
-            </span>
-            <button className="btn btn-primary" onClick={() => loadText("", "untitled.txt")}>
-              New check
-            </button>
-          </div>
-        </div>
-      </header>
-
+      <Topbar />
       <main>
+<<<<<<< HEAD
         {/* ---------------- hero ---------------- */}
         <section className="shell hero">
           <span className="eyebrow">Brand voice · consistency</span>
@@ -584,26 +360,14 @@ export default function Home() {
             </span>
           </div>
         </section>
+=======
+        <Hero />
+        <BrandCheckApp />
+        <HowItWorks />
+        <VoiceProfile />
+>>>>>>> f7654f0 (Added Meta API func)
       </main>
-
-      {/* ---------------- footer ---------------- */}
-      <footer className="foot">
-        <div className="shell foot-in">
-          <div className="brand">
-            <span className="brand-mark" aria-hidden>
-              <span />
-              <span />
-              <span />
-            </span>
-            Tono
-          </div>
-          <span className="mono">in tune since 2026 — placeholder, inc.</span>
-          <span>© Placeholder content for design review</span>
-        </div>
-      </footer>
-
-      {/* transient toast */}
-      {toast ? <div className="toast">{toast}</div> : null}
+      <SiteFooter />
     </>
   );
 }

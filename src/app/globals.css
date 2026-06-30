@@ -846,6 +846,127 @@ body {
 }
 
 /* ============================================================
+   Social connect (channels)
+   ============================================================ */
+.social-section { margin-top: 46px; }
+.social {
+  background: linear-gradient(180deg, var(--night-2), #14152f);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 70px -50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+.social-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.social-title { display: flex; align-items: center; gap: 13px; }
+.social-ic {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--signal-soft);
+  color: var(--signal);
+  font-size: 18px;
+}
+.social-title h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--mist); }
+.social-sub { margin: 2px 0 0; font-size: 13px; color: var(--mist-dim); }
+.social-body { padding: 18px 22px 22px; }
+.social-note {
+  font-size: 13.5px;
+  color: var(--mist-dim);
+  line-height: 1.6;
+  background: rgba(232, 197, 71, 0.06);
+  border: 1px solid rgba(232, 197, 71, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+.social-note code {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--gold);
+  background: rgba(232, 197, 71, 0.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.social-connect { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.social-conn { font-size: 14px; color: var(--mist); margin: 0 0 14px; }
+
+.acct-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.acct {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  color: var(--mist-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px 6px 7px;
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease;
+}
+.acct:hover { border-color: var(--mist-dim); color: var(--mist); }
+.acct.is-on { border-color: var(--signal); color: var(--mist); background: var(--signal-soft); }
+.acct-badge {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 999px;
+  padding: 3px 7px;
+}
+.acct-badge.facebook { background: #1877f2; }
+.acct-badge.instagram { background: linear-gradient(45deg, #f09433, #dc2743 45%, #bc1888); }
+
+.post-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.post {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.012);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+.post:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.post.is-on { border-color: var(--signal); background: var(--signal-soft); }
+.post-text { font-size: 14px; color: var(--mist); line-height: 1.45; }
+.post-meta { font-size: 11px; color: var(--mist-faint); letter-spacing: 0.03em; }
+
+/* repost bar inside findings */
+.repost-bar { margin: 0 0 14px; }
+.mini-repost {
+  border-color: transparent;
+  background: var(--signal-soft);
+  color: #c6bdff;
+}
+.mini-repost:hover:not(:disabled) { background: rgba(122, 108, 240, 0.3); }
+.mini-repost:disabled { opacity: 0.7; cursor: default; }
+.repost-note {
+  font-size: 12.5px;
+  color: var(--mist-dim);
+  line-height: 1.55;
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+.repost-note a { color: var(--signal); }
+
+/* ============================================================
    Animations
    ============================================================ */
 @keyframes pulse {

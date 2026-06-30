@@ -49,4 +49,43 @@ npx --yes @blazity-atlas/core@latest doctor --fix  # apply safe repairs
 
 ---
 
+## Tono — the app in this repo
+
+Tono is a brand-voice consistency checker. Paste copy, upload a file, fetch a
+URL, or pull a live post from a connected social channel; Claude checks it
+against a voice profile, flags every off-brand passage with a plain-language
+reason and a rewrite, and you apply the fixes in place, then download, copy, or
+post the corrected version back.
+
+### Run it
+
+```bash
+cp .env.example .env.local   # then fill in ANTHROPIC_API_KEY (and Meta keys for social)
+npm install
+npm run dev                  # http://localhost:3000
+```
+
+`ANTHROPIC_API_KEY` alone enables the full check / fix / download flow. The
+"Channels" social connect needs Meta credentials (below).
+
+### Social connect (Facebook & Instagram) setup
+
+1. Create an app at [developers.facebook.com](https://developers.facebook.com/) and add the **Facebook Login** product.
+2. Add the OAuth redirect URI `http://localhost:3000/api/auth/facebook/callback` to the app's Valid OAuth Redirect URIs.
+3. Put `META_APP_ID` and `META_APP_SECRET` in `.env.local`.
+4. While the app is in development, add yourself as a **Tester** or **Admin** so the scopes work without full App Review.
+5. The flow requests: `public_profile, pages_show_list, pages_read_engagement, pages_manage_posts, instagram_basic, instagram_content_publish`.
+
+**What works per platform:** Facebook **Page posts** support the full loop —
+read → check → fix → **repost the corrected text in place**. Instagram supports
+**read + check**, but its API has no endpoint to edit a published caption, so
+the corrected caption is offered to **copy** (or publish as a new post) rather
+than edited in place. Instagram requires a Business account linked to a Page.
+
+> Tokens are exchanged server-side and stored in an httpOnly cookie; they never
+> reach the browser. This is a hackathon demo — use a server session store for
+> production.
+
+---
+
 _Good luck, and build something real._

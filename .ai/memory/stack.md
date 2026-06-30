@@ -21,7 +21,18 @@ Scaffolded with `create-next-app` (App Router). Versions current as of setup.
 - `npm run lint` — ESLint.
 - `npx --yes @blazity-atlas/core@latest doctor` — Atlas workspace health.
 
+## Integrations & env vars
+
+- **Claude:** `ANTHROPIC_API_KEY` (server-side, read in `/api/check`). Model
+  `claude-opus-4-8` via forced tool use for structured findings.
+- **Meta (Facebook/Instagram):** `META_APP_ID`, `META_APP_SECRET` (optional
+  `META_REDIRECT_URI`, `META_GRAPH_VERSION` default `v21.0`). Facebook Login
+  OAuth + Graph API for reading posts and editing Facebook Page posts. See
+  `.env.example` and README for the Meta app setup (redirect URI, scopes,
+  tester role).
+- Secrets live in `.env.local` (gitignored); never commit keys.
+
 ## To confirm
 
-- Env var name for the Anthropic API key and how secrets are handled.
 - Whether a test runner is added (none configured yet).
+- Production token storage (the Meta user token is currently an httpOnly cookie).

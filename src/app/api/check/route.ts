@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { buildSystemPrompt } from "@/app/brand";
+import { buildSystemPrompt } from "@/lib/brand";
 
 const SYSTEM = buildSystemPrompt();
 
