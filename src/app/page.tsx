@@ -453,56 +453,58 @@ export default function Home() {
                     {appliedCount > 0 && !allApplied ? (
                       <p className="restale">Fixes applied — re-run the check to refresh the score.</p>
                     ) : null}
-
-                    {result?.findings.map((f, idx) => {
-                      const marker = markerByFinding.get(idx);
-                      const isApplied = applied.has(idx);
-                      return (
-                        <div
-                          key={`${idx}-${runId}`}
-                          className={`note${active === idx ? " is-active" : ""}${isApplied ? " is-applied" : ""}`}
-                          style={{ animationDelay: `${0.05 * idx}s` }}
-                          onMouseEnter={() => setActive(idx)}
-                          onMouseLeave={() => setActive(null)}
-                        >
-                          <div className="note-top">
+                    <ul className="note-list">
+                      {result?.findings.map((f, idx) => {
+                        const marker = markerByFinding.get(idx);
+                        const isApplied = applied.has(idx);
+                        return (
+                            <div
+                                key={`${idx}-${runId}`}
+                                className={`note${active === idx ? " is-active" : ""}${isApplied ? " is-applied" : ""}`}
+                                style={{ animationDelay: `${0.05 * idx}s` }}
+                                onMouseEnter={() => setActive(idx)}
+                                onMouseLeave={() => setActive(null)}
+                            >
+                              <div className="note-top">
                             <span
-                              className={`note-marker sev-${f.severity}`}
-                              title={`Severity: ${f.severity}`}
+                                className={`note-marker sev-${f.severity}`}
+                                title={`Severity: ${f.severity}`}
                             >
                               {isApplied ? "✓" : (marker ?? "–")}
                             </span>
-                            <span className="note-rule" title="Brand rule this breaks">
+                                <span className="note-rule" title="Brand rule this breaks">
                               {f.rule}
                             </span>
-                            <span className="note-title">{f.title}</span>
-                            <span className={`note-sev sev-text-${f.severity}`} title={SEVERITY_HELP[f.severity]}>
+                                <span className="note-title">{f.title}</span>
+                                <span className={`note-sev sev-text-${f.severity}`} title={SEVERITY_HELP[f.severity]}>
                               {f.severity}
                             </span>
-                          </div>
-                          <p className="note-explain">{f.explanation}</p>
-                          <div className="note-rewrite">
+                              </div>
+                              <p className="note-explain">{f.explanation}</p>
+                              <div className="note-rewrite">
                             <span className="arrow" aria-hidden>
                               →
                             </span>
-                            <span>{f.rewrite}</span>
-                          </div>
-                          <div className="note-actions">
-                            {isApplied ? (
-                              <span className="applied-tag">✓ Applied in text</span>
-                            ) : (
-                              <button
-                                className="mini mini-apply"
-                                onClick={() => applyFinding(idx)}
-                                title="Replace this passage with the on-brand rewrite"
-                              >
-                                Apply rewrite
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                                <span>{f.rewrite}</span>
+                              </div>
+                              <div className="note-actions">
+                                {isApplied ? (
+                                    <span className="applied-tag">✓ Applied in text</span>
+                                ) : (
+                                    <button
+                                        className="mini mini-apply"
+                                        onClick={() => applyFinding(idx)}
+                                        title="Replace this passage with the on-brand rewrite"
+                                    >
+                                      Apply rewrite
+                                    </button>
+                                )}
+                              </div>
+                            </div>
+                        );
+                      })}
+                    </ul>
+
                   </>
                 )}
               </aside>
